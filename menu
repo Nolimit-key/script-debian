@@ -1,0 +1,721 @@
+function install () {
+   clear
+   echo -e "\033[1;32mBắt đầu tải ... \033[0m"
+   echo ""
+   	apt update -y
+  	apt install samba -y
+   echo -e "\033[1;32mBắt đầu cài đặt ... \033[0m"
+
+   mkdir /home/debian/sambashare/
+   echo "[sambashare]
+    comment = Samba on Ubuntu
+    path = /home/debian/sambashare
+    read only = no
+    browsable = yes" >> /etc/samba/smb.conf
+   echo ""
+   echo -e "\n\033[1;32m  Đã xong !\033[0m"
+   sleep 3
+   menu2
+}
+function taotaikhoan () {
+   clear
+   echo -e "\033[1;32m		+ Tạo và thêm tài khoản samba + \033[0m"
+   echo -ne "\033[1;32m Nhập tên tài khoản \033[0m"; read tentk
+   echo -e "\033[1;32m Nhập mật khẩu : \033[0m"
+   useradd "$tentk"
+   passwd "$tentk"
+   echo -e "\033[1;32m Nhập lại mật khẩu : \033[0m"
+   smbpasswd -a "$tentk"
+   echo -e "\033[1;32m Đăng nhập samba với tài khoản vừa tạo \033[0m"
+   sleep 3
+   menu2
+}
+
+function start () {
+   clear
+   service smbd restart
+   echo""
+   echo -e "\033[1;32mKết nối đến thư mục samba bằng cách gõ \033[1;31m'window + R'\033[0m \033[1;32mvà nhập\033[0m\033[1;33m '\\\\\\\\ip-address\sambashare'\033[0m"
+   sleep 8
+   menu2
+}
+
+function stop () {
+   clear
+   systemctl stop smbd
+   echo""
+   echo -e "\033[1;32mDịch vụ đã dừng \033[0m"
+   sleep 3
+   menu2
+}
+
+menu2 (){
+		clear
+		echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+		echo -e "\E[41;1;37m                     SAMBA                      \E[0m"
+		echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+		echo ""
+		echo -e "        \033[1;31m[\033[1;36m1\033[1;31m] \033[1;37m• \033[1;33mTải và cài đặt \033[1;31m                      
+	[\033[1;36m2\033[1;31m] \033[1;37m• \033[1;33mTạo user \033[1;31m                            
+	[\033[1;36m3\033[1;31m] \033[1;37m• \033[1;33mBắt đầu dịch vụ \033[1;31m    
+	[\033[1;36m4\033[1;31m] \033[1;37m• \033[1;33mDừng dịch vụ \033[1;31m
+	[\033[1;36m5\033[1;31m] \033[1;37m• \033[1;33mQuay lại \033[1;31m    "
+		echo ""
+	echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+
+
+		echo ""
+		echo -ne "\033[1;32mNhập số \033[1;33m?\033[1;31m?\033[1;37m : "; read x
+		case "$x" in
+		   1)
+		   clear
+		   install
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   menu2
+		   ;;
+		   2)
+		   clear
+		   taotaikhoan
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   menu2
+		   ;;
+		   3)
+		   clear
+		   start
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   menu2
+		   ;;
+		   4)
+		   clear
+		   stop
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   menu2
+		   ;;
+		   5)
+		   clear
+		   menu
+		   ;;
+		   0|00)
+		   echo -e "\033[1;31mĐang thoát menu ...\033[0m"
+		   sleep 2
+		   clear
+		   exit;
+		   ;;
+		   *)
+		   echo -e "\n\033[1;31mSố nhập không đúng !\033[0m"
+		   sleep 2
+		   menu2
+		esac
+	}
+-----------------------------------DHCP-----------------------------------
+function caidhcp () {
+   clear
+   echo -e "\033[1;32mBắt đầu tải ... \033[0m"
+   echo ""
+   	apt install isc-dhcp-server -y
+   echo ""
+   echo -e "\n\033[1;32m  Đã xong !\033[0m"
+   sleep 3
+   dhcp
+}
+function chdhcp () {
+   clear
+   echo -ne "\033[1;32m Nhập tên card mạng local (ens37) : \033[0m"; read en
+   echo -ne "\033[1;32m Nhập network (192.168.1.0) : \033[0m"; read e1
+   echo -ne "\033[1;32m Nhập ip server dhcp (192.168.1.1) : \033[0m"; read e2
+   echo -ne "\033[1;32m Nhập ip đầu tiên cấp cho client (192.168.1.10) : \033[0m"; read e3
+   echo -ne "\033[1;32m Nhập ip cuối cấp cho client (192.168.1.100) : \033[0m"; read e4
+   echo "DHCPDv4_CONF=/etc/dhcp/dhcpd.conf" >> /etc/default/isc-dhcp-server
+   sed -i "s/INTERFACESv4=""/INTERFACESv4=":::0"/gI" /etc/default/isc-dhcp-server
+   sed -i "s/:::0/$en/gI" /etc/default/isc-dhcp-server
+   echo "authoritative;" >> /etc/dhcp/dhcpd.conf
+   echo "subnet $e1 netmask 255.255.255.0 {
+    option routers      $e2;
+    option subnet-mask  255.255.255.0;
+    range dynamic-bootp $e3 $e4;
+}" >> /etc/dhcp/dhcpd.conf
+
+   echo -e "\033[1;32m Đã cấu hình xonng !!!\033[0m"
+   sleep 3
+   dhcp
+}
+
+function startdhcp () {
+   clear
+   systemctl restart isc-dhcp-server
+   echo""
+   echo -e "\033[1;32mĐã chạy dhcp-server thành công \033[0m"
+   sleep 2
+   dhcp
+}
+
+function stopdhcp () {
+   clear
+   systemctl stop isc-dhcp-server
+   echo""
+   echo -e "\033[1;32mDịch vụ đã dừng \033[0m"
+   sleep 3
+   dhcp
+}
+
+dhcp (){
+		clear
+		echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+		echo -e "\E[41;1;37m                      DHCP                       \E[0m"
+		echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+		echo ""
+		echo -e "        \033[1;31m[\033[1;36m1\033[1;31m] \033[1;37m• \033[1;33mTải và cài đặt \033[1;31m                      
+	[\033[1;36m2\033[1;31m] \033[1;37m• \033[1;33mCấu hình \033[1;31m                            
+	[\033[1;36m3\033[1;31m] \033[1;37m• \033[1;33mBắt đầu dịch vụ \033[1;31m    
+	[\033[1;36m4\033[1;31m] \033[1;37m• \033[1;33mDừng dịch vụ \033[1;31m
+	[\033[1;36m5\033[1;31m] \033[1;37m• \033[1;33mQuay lại \033[1;31m    "
+		echo ""
+	echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+
+
+		echo ""
+		echo -ne "\033[1;32mNhập số \033[1;33m?\033[1;31m?\033[1;37m : "; read x
+		case "$x" in
+		   1)
+		   clear
+		   caidhcp
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   dhcp
+		   ;;
+		   2)
+		   clear
+		   chdhcp
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   dhcp
+		   ;;
+		   3)
+		   clear
+		   startdhcp
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   dhcp
+		   ;;
+		   4)
+		   clear
+		   stopdhcp
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   dhcp
+		   ;;
+		   5)
+		   clear
+		   menu
+		   ;;
+		   0|00)
+		   echo -e "\033[1;31mĐang thoát menu ...\033[0m"
+		   sleep 2
+		   clear
+		   exit;
+		   ;;
+		   *)
+		   echo -e "\n\033[1;31mSố nhập không đúng !\033[0m"
+		   sleep 2
+		   dhcp
+		esac
+	}
+
+
+-----------------------------------DNS------------------------------------
+function taidns () {
+   clear
+   apt install bind* -y
+   echo""
+   echo -e "\033[1;32mDịch vụ dns đã được cài đặt \033[0m"
+   sleep 3
+   dns
+}
+
+function kiemloi () {
+   clear
+   echo""
+   echo -ne "\033[1;32mNhập tên miền (vanquan.com) : \033[0m"; read a22
+   dig "$a22"
+   sleep 6
+   dns
+}
+
+function khoidong () {
+   clear
+   echo""
+   echo -e "\033[1;32mThêm địa chỉ dns vào card mạng private\033[0m"
+   echo -ne "\033[1;32mNhập ip dns server (192.168.1.1) : \033[0m"; read ipdns 
+   echo -e "\033[1;32mĐang khởi động dịch vụ dns ... \033[0m"
+   systemctl restart bind9
+   echo -e "\033[1;32mDịch vụ dns đã khởi chạy thành công !\033[0m"
+   sleep 2
+
+
+   echo "source /etc/network/interfaces.d/*
+auto lo
+iface lo inet loopback
+
+allow-hotplug ens33
+iface ens33 inet dhcp
+
+iface ens37 inet static
+address $ipdns
+netmask 255.255.255.0
+dns-nameservers $ipdns"  > /etc/network/interfaces
+   ifup ens37
+   echo "nameserver :::6" > /etc/resolv.conf
+   sed -i "s/:::6/"$ipdns"/gI" /etc/resolv.conf
+   dns
+
+}
+
+--------------------------------cau hinh ------------------
+function cauhinhdns () {
+   clear
+   echo""
+   
+   echo -ne "\033[1;32mNhập địa chỉ subnet(192.168.1.0) : \033[0m"; read a3
+   echo -ne "\033[1;32mNhập ip dns ngược (1.168.192) : \033[0m"; read a23
+   echo -ne "\033[1;32mNhập tên miền (vanquan.com) : \033[0m"; read a4
+   echo -ne "\033[1;32mNhập ip máy dns (192.168.1.1) : \033[0m"; read a5
+   echo -ne "\033[1;32mNhập số ip cuối máy dns (1) : \033[0m"; read a6
+   echo -ne "\033[1;32mNhập ip máy mail (192.168.1.2) : \033[0m"; read a7
+   echo -ne "\033[1;32mNhập số ip cuối máy mail (2) : \033[0m"; read a8
+   echo -ne "\033[1;32mNhập ip máy web (192.168.1.3) : \033[0m"; read a9
+   echo -ne "\033[1;32mNhập số ip cuối máy web (3) : \033[0m"; read a10
+   
+   a30='$TTL'
+   a12="
+"$a30"	86400
+@	IN	SOA	dns."$a4". root."$a4". (
+			      1		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			  86400 )	; Negative Cache TTL
+	IN	NS	dns."$a4".
+	IN	NS	mail."$a4".
+	IN	NS	www."$a4".
+	IN	A	"$a5"
+	IN	A	"$a7"
+	IN	A	"$a9"
+dns	IN	A	"$a5"
+mail	IN	A	"$a7"
+www	IN	A	"$a9"
+	"
+   a13="
+IN	PTR	"$a4".
+"$a6"	IN	PTR	dns."$a4".
+"$a8"	IN	PTR	mail."$a4".
+"$a10"	IN	PTR	www."$a4".	
+	"
+
+   echo 'options {
+	directory "/var/cache/bind";
+	dnssec-validation auto;
+	listen-on-v6 { none; };
+	};' > /etc/bind/named.conf.options
+
+   echo 'zone :::7 IN {
+	type master;
+	file "/etc/bind/thuan";
+	};
+	zone ":::8.in-addr.arpa" IN {
+	type master;
+	file "/etc/bind/nghich";
+	};' > /etc/bind/named.conf.local
+
+   sed -i "s/:::7/"$a4"/gI" /etc/bind/named.conf.local
+   sed -i "s/:::8/"$a23"/gI" /etc/bind/named.conf.local
+
+
+
+   echo "$a12" > /etc/bind/thuan
+   cp /etc/bind/thuan /etc/bind/nghich
+   echo "$a13" >> /etc/bind/nghich
+   chmod -R 755 /etc/bind
+   chown -R bind:bind /etc/bind
+
+   echo -e "\033[1;32mKiểm lỗi file named.conf \033[0m"
+   sleep 3
+   named-checkconf /etc/bind/named.conf
+   echo -e "\033[1;32mKiểm lỗi file thuận \033[0m"
+   sleep 3
+   named-checkzone "$a4" /etc/bind/thuan
+   echo -e "\033[1;32mKiểm lỗi file nghịch \033[0m"
+   sleep 3
+   named-checkzone "$a4" /etc/bind/nghich
+  
+   echo""
+   echo -e "\033[1;32mKhông có lỗi trong file cấu hình \033[0m"
+
+   echo -e "\033[1;32mDịch vụ dns đã được cấu hình \033[0m"
+   sleep 1
+   echo -e "\033[1;32m   Dns :		dns."$a4" - "$a5"\033[0m"
+   echo -e "\033[1;32m   Dns :		mail."$a4" - "$a7"\033[0m"
+   echo -e "\033[1;32m   Dns :		www."$a4" - "$a9"\033[0m"
+   sleep 6
+   dns
+}
+--------------------------------------cau hinh------------------------------
+dns (){
+		clear
+		echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+		echo -e "\E[41;1;37m                       DNS                       \E[0m"
+		echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+		echo ""
+		echo -e "        \033[1;31m[\033[1;36m1\033[1;31m] \033[1;37m• \033[1;33mTải và cài đặt\033[1;31m     
+	[\033[1;36m2\033[1;31m] \033[1;37m• \033[1;33mCấu hình \033[1;31m                       
+	[\033[1;36m3\033[1;31m] \033[1;37m• \033[1;33mBắt đầu dịch vụ dns\033[1;31m                                
+	[\033[1;36m4\033[1;31m] \033[1;37m• \033[1;33mDừng dịch vụ \033[1;31m
+	[\033[1;36m5\033[1;31m] \033[1;37m• \033[1;33mKiểm tra dns\033[1;31m
+	[\033[1;36m6\033[1;31m] \033[1;37m• \033[1;33mQuay lại \033[1;31m    "
+		echo ""
+	echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+
+
+		echo ""
+		echo -ne "\033[1;32mNhập số \033[1;33m?\033[1;31m?\033[1;37m : "; read x
+		case "$x" in
+		   1)
+		   clear
+		   taidns
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   dns
+		   ;;
+		   2)
+		   clear
+		   cauhinhdns
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   dns
+		   ;;
+		   3)
+		   clear
+		   khoidong
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   dns
+		   ;;
+		   4)
+		   clear
+		   systemctl stop bind9
+		   echo -ne "\033[1;31mDịch vụ DNS đã dừng !\033[0m"
+		   sleep 2
+		   dns
+		   ;;
+		   5)
+		   clear
+		   kiemloi
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   dns
+		   ;;
+		   6)
+		   menu
+		   ;;
+		   0|00)
+		   echo -e "\033[1;31mĐang thoát menu ...\033[0m"
+		   sleep 2
+		   clear
+		   exit;
+		   ;;
+		   *)
+		   echo -e "\n\033[1;31mSố nhập không đúng !\033[0m"
+		   sleep 2
+		   dns
+		esac
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function chmail () {
+   clear
+echo -ne "\033[1;32mNhập domain main (quanit.vn) : \033[0m"; read b21
+n1='/var/local/squirrelmail/data/'
+n2='/var/www/html/webmail/data/'
+n3='/var/local/squirrelmail/attach/'
+n4='/var/www/html/webmail/attach/'
+
+sed -i "s/$domain = 'example.com';/$domain = '$b21';/gI" /var/www/html/webmail/config/config_default.php
+sed -i "s/$allow_thread_sort = false;/$allow_thread_sort = true;/gI" /var/www/html/webmail/config/config_default.php
+sed -i "s/'$n1'/'$n2'/gI" /var/www/html/webmail/config/config_default.php
+sed -i "s/'$n3'/'$n4'/gI" /var/www/html/webmail/config/config_default.php
+
+   echo -e "\n\033[1;32m  Đã cấu hình xong !\033[0m"
+   sleep 3
+   mail
+}
+
+function taimail () {
+   clear
+   echo -e "\033[1;32mĐang tải postfix ... \033[0m"
+   apt-get update -y
+   clear
+   echo -e "\033[1;32mChú ý điền tên hệ thống mail của bạn (quanit.vn) \033[0m"
+   sleep 7
+   apt-get install postfix -y
+   apt-get install apache2 php dovecot-imapd dovecot-pop3d unzip -y
+   cd ~
+   wget https://sourceforge.net/projects/squirrelmail/files/stable/1.4.22/squirrelmail-webmail-1.4.22.zip
+   unzip squirrelmail-webmail-1.4.22.zip
+   mv squirrelmail-webmail-1.4.22 /var/www/html/
+   chown -R www-data:www-data /var/www/html/squirrelmail-webmail-1.4.22/
+   chmod 755 -R /var/www/html/squirrelmail-webmail-1.4.22/
+   mv /var/www/html/squirrelmail-webmail-1.4.22/ /var/www/html/webmail
+   echo""
+   echo -e "\033[1;32mĐã cài đặt xong ! \033[0m"
+   sleep 3
+   mail
+}
+function chaymail () {
+   clear
+   echo -e "\033[1;32mĐang restart postfix...\033[0m"
+   sleep 3
+   systemctl restart postfix
+   echo -e "\033[1;32mĐang restart dovecot ...\033[0m"
+   systemctl restart dovecot
+   sleep 3
+   echo -e "\033[1;32mTruy cập mail theo địa chỉ http://ip/webmail  \033[0m"
+   sleep 7
+   mail
+}
+function taouser () {
+   clear
+   echo -ne "\033[1;32mNhập tên user : \033[0m"; read v1
+   useradd "$v1"
+   echo -ne "\033[1;32mNhập mật khẩu : \033[0m"
+   passwd "$v1"
+   usermod -m -d /var/www/html/"$v1" "$v1"
+   mkdir -p /var/www/html/"$v1"
+   chown -R "$v1":"$v1" /var/www/html/"$v1"
+   systemctl daemon-reload
+   systemctl reload apache2
+   echo -e "\033[1;32mĐã tạo xong ! \033[0m"
+   sleep 2
+   mail
+}
+
+
+
+
+
+
+
+
+mail (){
+		clear
+		echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+		echo -e "\E[41;1;37m                       MAIL                      \E[0m"
+		echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+		echo ""
+		echo -e "        \033[1;31m[\033[1;36m1\033[1;31m] \033[1;37m• \033[1;33mTải và cài đặt\033[1;31m     
+	[\033[1;36m2\033[1;31m] \033[1;37m• \033[1;33mCấu hình \033[1;31m                       
+	[\033[1;36m3\033[1;31m] \033[1;37m• \033[1;33mTạo user \033[1;31m                                
+	[\033[1;36m4\033[1;31m] \033[1;37m• \033[1;33mkhởi chạy dịch vụ mail\033[1;31m
+	[\033[1;36m5\033[1;31m] \033[1;37m• \033[1;33mDừng dịch vụ\033[1;31m
+	[\033[1;36m6\033[1;31m] \033[1;37m• \033[1;33mQuay lại \033[1;31m    "
+		echo ""
+	echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+
+
+		echo ""
+		echo -ne "\033[1;32mNhập số \033[1;33m?\033[1;31m?\033[1;37m : "; read z
+		case "$z" in
+		   1)
+		   clear
+		   taimail
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   mail
+		   ;;
+		   2)
+		   clear
+		   chmail
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   mail
+		   ;;
+		   3)
+		   clear
+		   taouser
+		   echo -ne "\n\033[1;31mENTER \033[1;33mđể quay lại \033[1;32mMENU!\033[0m"; read
+		   mail
+		   ;;
+		   4)
+		   clear
+		   chaymail
+		   echo -ne "\033[1;31mDịch vụ MAIL đã dừng !\033[0m"
+		   sleep 2
+		   mail
+		   ;;
+		   5)
+		   clear
+		   systemctl stop postfix
+		   echo -ne "\033[1;31mDịch vụ MAIL đã dừng !\033[0m"
+		   mail
+		   ;;
+		   6)
+		   menu
+		   ;;
+		   0|00)
+		   echo -e "\033[1;31mĐang thoát menu ...\033[0m"
+		   sleep 2
+		   clear
+		   exit;
+		   ;;
+		   *)
+		   echo -e "\n\033[1;31mSố nhập không đúng !\033[0m"
+		   sleep 2
+		   mail
+		esac
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+while true $x != "ok"
+do
+if [[ "$(grep -c "Ubuntu" /etc/issue.net)" = "1" ]]; then
+system=$(cut -d' ' -f1 /etc/issue.net)
+system+=$(echo ' ')
+system+=$(cut -d' ' -f2 /etc/issue.net |awk -F "." '{print $1}')
+elif [[ "$(grep -c "Debian" /etc/issue.net)" = "1" ]]; then
+system=$(cut -d' ' -f1 /etc/issue.net)
+system+=$(echo ' ')
+system+=$(cut -d' ' -f3 /etc/issue.net)
+else
+system=$(cut -d' ' -f1 /etc/issue.net)
+fi
+
+
+
+
+
+
+
+clear
+echo -e "               \033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "               \E[41;1;37m                       Menu                      \E[0m"
+echo -e "               \033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo ""
+echo -e "               \033[0;35mIP: `hostname -I`\033[0m"
+echo ""
+echo -e "               \033[1;32m				     	      by : Team Covid21\033[0m"
+echo -e "               \033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo ""
+echo -e "                    \033[1;31m[\033[1;36m1\033[1;31m] \033[1;37m• \033[1;33mSamba \033[1;31m
+                    [\033[1;36m2\033[1;31m] \033[1;37m• \033[1;33mDHCP \033[1;31m		
+                    [\033[1;36m3\033[1;31m] \033[1;37m• \033[1;33mMail server \033[1;31m
+                    [\033[1;36m4\033[1;31m] \033[1;37m• \033[1;33mDns server \033[1;31m
+                    [\033[1;36m0\033[1;31m] \033[1;37m• \033[1;33mThoát menu \033[1;32m<\033[1;33m<\033[1;31m<\033[1;31m"
+echo ""
+echo -e "               \033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+
+echo ""
+echo ""
+echo -ne "\033[1;32mNhập số \033[1;33m?\033[1;31m?\033[1;37m : "; read x
+
+case "$x" in 
+   1 | 01)
+   clear
+   menu2
+   ;;
+   2 | 02)
+   clear
+   dhcp
+   ;;
+   3 | 03)
+   clear
+   mail
+   ;;
+   4 | 04)
+   clear
+   dns
+   ;;
+   0 | 00)
+   echo -e "\033[1;31mĐang thoát menu ...\033[0m"
+   sleep 2
+   clear
+   exit;
+   ;;
+   *)
+   echo -e "\n\033[1;31mSố bạn nhập không đúng !\033[0m"
+   sleep 2
+esac
+done
+}
+menu
+#fim
